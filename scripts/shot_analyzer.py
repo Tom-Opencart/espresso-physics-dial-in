@@ -85,6 +85,8 @@ def analyze(args: argparse.Namespace) -> dict:
             "pressure_drop_bar_assumed": args.pressure,
             "measured_puck_flow_ml_s": args.puck_flow_ml_s,
             "hydraulic_resistance_pa_s_m3_approx": resistance,
+            "empirical_sqrt_pressure_over_flow_bar_half_s_ml": (args.pressure ** 0.5) / args.puck_flow_ml_s,
+            "empirical_pressure_power_065_over_flow_bar_065_s_ml": (args.pressure ** 0.65) / args.puck_flow_ml_s,
         }
         if args.puck_height_mm is not None:
             radius_m = args.basket_diameter_mm / 2000.0
@@ -96,6 +98,8 @@ def analyze(args: argparse.Namespace) -> dict:
             )
         result["darcy_estimate"] = estimate
         result["limitations"].append(
+            "Показатели ΔP^0.5/Q и ΔP^0.65/Q обсуждаются на с. 87–88 книги Ганье "
+            "как эмпирические нормировки; они имеют особые размерности и не являются проницаемостью. "
             "Расчет Дарси предполагает стационарный поток, однородную геометрию "
             "и что заданное давление действительно является перепадом на таблетке."
         )
@@ -146,7 +150,9 @@ def main() -> int:
         print("Сопротивление Дарси: не рассчитывается без отдельно измеренного объемного потока через таблетку.")
     else:
         d = out["darcy_estimate"]
-        print(f"Оценка гидравлического сопротивления: {d['hydraulic_resistance_pa_s_m3_approx']:.3e} Па·с/м³")
+        print(f"Оценка гидравлического сопротивления (ΔP/Q): {d['hydraulic_resistance_pa_s_m3_approx']:.3e} Па·с/м³")
+        print(f"Эмпирический индекс √ΔP/Q: {d['empirical_sqrt_pressure_over_flow_bar_half_s_ml']:.3f} бар^0.5·с/мл")
+        print(f"Эмпирический индекс ΔP^0.65/Q: {d['empirical_pressure_power_065_over_flow_bar_065_s_ml']:.3f} бар^0.65·с/мл")
         if "effective_permeability_m2_approx" in d:
             print(f"Оценка эффективной проницаемости: {d['effective_permeability_m2_approx']:.3e} м²")
     if args.taste:
