@@ -1,13 +1,49 @@
-# Espresso Physics Dial-In (AI Agent Skill)
+# Espresso Physics Dial-In — AI Agent Skill
 
-Инженерно-физический навык (Skill) для ИИ-агентов (Gemini, Claude Code, Google Antigravity IDE, Cursor) по книге астрофизика **Джонатана Ганье (Jonathan Gagné) — «The Physics of Espresso»**.
+Навык для работы с параметрами эспрессо **по проверенным материалам книги** Jonathan Gagné, *The Physics of Espresso* (Scott Rao Coffee Books, 2025), ISBN 9798350747737.
 
-## Структура репозитория
-- `SKILL.md` — ядро навыка: уравнение фильтрации Дарси, защита от пороупругого сжатия («Вулкан Ганье»), стандарты Puck Prep и пошаговая матрица доводки (Dial-In Matrix).
-- `references/profiles-and-recipes.md` — точные карты профилей (Classic Lever, Turbo Shot, Blooming Espresso, Extractamundo Dos!, Allongé) и адаптация под машины с фиксированной помпой 9 бар.
-- `references/puck-physics-and-prep.md` — гидродинамика таблетки, статистика по методам распределения (WDT vs Blind Shaker vs Levelers), физика корзин и бумажных фильтров.
-- `references/water-and-burr-geometry.md` — химия воды (рецепты KH/GH в ppm без накипи), бимодальное и унимодальное распределение частиц, заморозка зерна и дегазация CO2.
-- `scripts/shot_analyzer.py` — CLI-калькулятор для расчета Brew Ratio, EY%, динамической вязкости воды по Фогелю и индекса сопротивления Дарси.
+> **Уровень достоверности:** на 28.10.2026 непосредственно проверен авторизованный издателем фрагмент **главы 9, страницы 163–174**. **Вся книга пока не прочитана.** Репозиторий не должен выдавать домыслы или знания из других источников за точные выводы Ганье.
 
-## Быстрый запуск анализатора шота
-    python3 scripts/shot_analyzer.py --dose 18.0 --yield_g 36.0 --time 29 --preinfusion 6 --pressure 9 --temp 93 --taste "sour+dry"
+## Первичный источник
+
+- Книга у издателя: https://www.scottrao.com/products/poe
+- Официально опубликованный PDF — глава 9 «Beverage Types and Recipes»: https://decentespresso.com/img/f/gagne_chapter_vevs.pdf
+- Подтверждение разрешения издателя: https://decentespresso.com/blog/gagne_espresso_book_excerpt_beverage_types_and_recipes
+- Опубликованный, но пока не прочитанный второй отрывок о душевых сетках и headspace: https://decentespresso.com/blog/free_book_extract_from_the_physics_of_espresso_shower_screens_and_headspace
+
+## Содержимое репозитория
+
+- [SKILL.md](SKILL.md) — правила работы агента: не выдумывать источники и EY, различать эксперимент и вывод книги.
+- [references/profiles-and-recipes.md](references/profiles-and-recipes.md) — проверенный пересказ главы 9: Traditional, Preinfused, Flow-Controlled, Blooming, Rao Allongé, Turbo, Adaptive, Extractamundo!, Filter Brewing, Nomacano.
+- [references/puck-physics-and-prep.md](references/puck-physics-and-prep.md) — только подтвержденные главой 9 аспекты поведения таблетки и headspace; список пробелов.
+- [references/water-and-burr-geometry.md](references/water-and-burr-geometry.md) — точные границы подтвержденного по воде и жерновам; без выдуманных рецептов минерализации.
+- [references/source-audit.md](references/source-audit.md) — таблица достоверности, страниц и исправленных ошибок.
+- [scripts/shot_analyzer.py](scripts/shot_analyzer.py) — **самостоятельный** CLI-калькулятор для наблюдаемых метрик шота; не является программой из книги.
+
+## Использование Skill
+
+Для среды с поддержкой \`SKILL.md\` установите репозиторий как папку навыка согласно требованиям вашей IDE/агента. Наличие этого файла само по себе не гарантирует автоматического обнаружения во всех перечисленных приложениях.
+
+Агент должен:
+1. Сначала сверить физические утверждения с [source-audit.md](references/source-audit.md).
+2. Учитывать возможности машины: настоящий blooming требует остановки подачи **без сброса давления**.
+3. Считать Ratio и среднюю гравиметрическую скорость по измерениям, а **EY — только при известной TDS**.
+4. Предлагать по одной экспериментальной правке, не выдавая ее за цитату из книги.
+
+## Запуск калькулятора
+
+\`\`\`bash
+python3 scripts/shot_analyzer.py \
+  --dose 18 --yield_g 36 --time 29 \
+  --preinfusion 6 --pressure 9 --temp 93 --taste "sour+dry"
+
+# С измеренной TDS:
+python3 scripts/shot_analyzer.py \
+  --dose 18 --yield_g 36 --time 29 --tds 10.5 --json
+\`\`\`
+
+**Важно:** давление, температура и средние скорости не дают достаточных данных для достоверного диагноза каналов или степени экстракции. Истинный профиль давления/потока изменяется в течение шота; число в CLI служит сравнительным ориентиром, а не прямым измерением проницаемости.
+
+## Научная добросовестность и авторские права
+
+Это **неофициальный** вспомогательный проект, не утвержденный автором и издателем. Материалы написаны заново, без воспроизведения текста книги целыми главами, защищенных иллюстраций и графиков. Чтобы завершить строго книжную версию по остальным темам, нужны соответствующие страницы оригинала: полный PDF или фото отдельных разделов.
